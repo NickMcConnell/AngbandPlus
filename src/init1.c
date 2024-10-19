@@ -104,7 +104,7 @@ static cptr r_info_blow_effect[] =
 	"EAT_ITEM",
 	"EAT_FOOD",
 	"EAT_LITE",
-	"ACID",
+	"XXXX",
 	"ELEC",
 	"FIRE",
 	"COLD",
@@ -145,10 +145,10 @@ static cptr r_info_flags1[] =
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
 	"FORCE_EXTRA",
-	"FRIEND",
-	"FRIENDS",
 	"ESCORT",
-	"ESCORTS",
+	"XX2",
+	"XX3",
+	"XX4",
 	"NEVER_BLOW",
 	"NEVER_MOVE",
 	"RAND_25",
@@ -211,23 +211,23 @@ static cptr r_info_flags2[] =
  */
 static cptr r_info_flags3[] =
 {
-	"ORC",
-	"TROLL",
-	"GIANT",
-	"DRAGON",
+	"XX1",
+	"XX2",
+	"XX3",
+	"XX4",
 	"DEMON",
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
-	"XXX4X3",
+	"HURT_ELEC",
+	"HURT_POIS",
+	"XXX3",
+	"XXX4",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
 	"HURT_COLD",
-	"IM_ACID",
+	"IM_XXXX",
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
@@ -258,7 +258,7 @@ static cptr r_info_flags4[] =
 	"ARROW_2",
 	"ARROW_3",
 	"ARROW_4",
-	"BR_ACID",
+	"BR_XXXX",
 	"BR_ELEC",
 	"BR_FIRE",
 	"BR_COLD",
@@ -289,7 +289,7 @@ static cptr r_info_flags4[] =
  */
 static cptr r_info_flags5[] =
 {
-	"BA_ACID",
+        "BA_XXXX",
 	"BA_ELEC",
 	"BA_FIRE",
 	"BA_COLD",
@@ -305,7 +305,7 @@ static cptr r_info_flags5[] =
 	"CAUSE_2",
 	"CAUSE_3",
 	"CAUSE_4",
-	"BO_ACID",
+	"BO_XXXX",
 	"BO_ELEC",
 	"BO_FIRE",
 	"BO_COLD",
@@ -348,16 +348,16 @@ static cptr r_info_flags6[] =
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
-	"S_SPIDER",
-	"S_HOUND",
-	"S_HYDRA",
-	"S_ANGEL",
+	"S_XX1",
+	"S_XX2",
+	"S_XX3",
+	"S_XX4",
+	"S_XX5",
 	"S_DEMON",
 	"S_UNDEAD",
-	"S_DRAGON",
+	"S_XX6",
 	"S_HI_UNDEAD",
-	"S_HI_DRAGON",
+	"S_XX7",
 	"S_WRAITH",
 	"S_UNIQUE"
 };
@@ -396,7 +396,7 @@ static cptr k_info_flags1[] =
 	"XXX5",
 	"XXX6",
 	"BRAND_POIS",
-	"BRAND_ACID",
+	"BRAND_XXXX",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
 	"BRAND_COLD"
@@ -462,7 +462,7 @@ static cptr k_info_flags3[] =
 	"TELEPORT",
 	"AGGRAVATE",
 	"DRAIN_EXP",
-	"IGNORE_ACID",
+	"IGNORE_XXXX",
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
@@ -504,7 +504,7 @@ static cptr a_info_act[ACT_MAX] =
 	"FROST3",
 	"FROST4",
 	"FROST5",
-	"ACID1",
+	"XXXX",
 	"RECHARGE1",
 	"SLEEP",
 	"LIGHTNING_BOLT",
@@ -1508,14 +1508,13 @@ errr init_k_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'O' for "Oppositions" (one line only) */
 		if (buf[0] == 'O')
 		{
-		     int acd, elc, fir, cld, psn;
+		     int elc, fir, cld, psn;
 
 		     /* Scan for the values */
-		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+		     if (4 != sscanf(buf+2, "%d:%d:%d:%d", &elc, &fir, &cld, &psn)) 
 			  return (PARSE_ERROR_GENERIC);
 
 		     /* Save the values */
-		     k_ptr->res[RES_ACID] = acd;
 		     k_ptr->res[RES_ELEC] = elc;
 		     k_ptr->res[RES_FIRE] = fir;
 		     k_ptr->res[RES_COLD] = cld;
@@ -1854,14 +1853,13 @@ errr init_a_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'O' for "Oppositions" (one line only) */
 		if (buf[0] == 'O')
 		{
-		     int acd, elc, fir, cld, psn;
+		     int elc, fir, cld, psn;
 
 		     /* Scan for the values */
-		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+		     if (4 != sscanf(buf+2, "%d:%d:%d:%d", &elc, &fir, &cld, &psn)) 
 			  return (PARSE_ERROR_GENERIC);
 
 		     /* Save the values */
-		     a_ptr->res[RES_ACID] = acd;
 		     a_ptr->res[RES_ELEC] = elc;
 		     a_ptr->res[RES_FIRE] = fir;
 		     a_ptr->res[RES_COLD] = cld;
@@ -2231,14 +2229,13 @@ errr init_e_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'O' for "Oppositions" (one line only) */
 		if (buf[0] == 'O')
 		{
-		     int acd, elc, fir, cld, psn;
+		     int elc, fir, cld, psn;
 
 		     /* Scan for the values */
-		     if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", &acd, &elc, &fir, &cld, &psn)) 
+		     if (4 != sscanf(buf+2, "%d:%d:%d:%d", &elc, &fir, &cld, &psn)) 
 			  return (PARSE_ERROR_GENERIC);
 
 		     /* Save the values */
-		     e_ptr->res[RES_ACID] = acd;
 		     e_ptr->res[RES_ELEC] = elc;
 		     e_ptr->res[RES_FIRE] = fir;
 		     e_ptr->res[RES_COLD] = cld;
@@ -2560,18 +2557,17 @@ errr init_r_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int spd, hp1, hp2, aaf, ac, slp;
+			int spd, grp1, grp2, aaf, slp;
 
 			/* Scan for the other values */
-			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
+			if (5 != sscanf(buf+2, "%d:%dd%d:%d:%d",
+			                &spd, &grp1, &grp2, &aaf, &slp)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			r_ptr->speed = spd;
-			r_ptr->hdice = hp1;
-			r_ptr->hside = hp2;
+			r_ptr->speed = (spd * 5) + 85; /* Scale is from 1 to ~15, normal is 5 */
+			r_ptr->group_min = grp1;
+			r_ptr->group_max = grp2;
 			r_ptr->aaf = aaf;
-			r_ptr->ac = ac;
 			r_ptr->sleep = slp;
 
 			/* Next... */
@@ -2581,25 +2577,44 @@ errr init_r_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
-			int lev, rar, pad;
-			long exp;
+			int act, rar, escort;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &act, &rar, &escort)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			r_ptr->level = lev;
+			r_ptr->act = act;
 			r_ptr->rarity = rar;
-			r_ptr->extra = pad;
-			r_ptr->mexp = exp;
+			r_ptr->escort = escort;
 
 			/* Next... */
 			continue;
 		}
 
-		/* Process 'B' for "Blows" (up to four lines) */
-		if (buf[0] == 'B')
+		/* Process 'JKL' for "Info" (one line only) */
+		if (buf[0] == 'J' || buf[0] == 'K' || buf[0] == 'L')
+		{
+			int lev, hp1, hp2, ac;
+			long exp;
+
+			/* Scan for the other values */
+			if (5 != sscanf(buf+2, "%d:%dd%d:%d:%ld",
+			                &lev, &hp1, &hp2, &ac, &exp)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			r_ptr->level = lev;
+			r_ptr->hdice = hp1;
+			r_ptr->hside = hp2;
+			r_ptr->ac = ac;
+			r_ptr->mexp = exp / 10; /* Player requires *2 XP, monsters are worth around *10 */
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'ABC' for "Blows" (up to four lines) */
+		if (buf[0] == 'A' || buf[0] == 'B' || buf[0] == 'C')
 		{
 			int n1, n2;
 
@@ -2681,6 +2696,26 @@ errr init_r_info_txt(FILE *fp, char *buf, header *head)
 				/* Start the next entry */
 				s = t;
 			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'XYZ' for "Elemental Resistances" (one line only) */
+		if (buf[0] == 'X' || buf[0] == 'Y' || buf[0] == 'Z')
+		{
+		        int dmg, magic, fire, elec, cold, pois;
+
+			/* Scan for the values */
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+			                &dmg,&magic,&fire,&elec,&cold,&pois)) return (PARSE_ERROR_GENERIC);
+
+			r_ptr->res_dmg = dmg;
+			r_ptr->res_magic = magic;
+			r_ptr->res_fire = fire;
+			r_ptr->res_elec = elec;
+			r_ptr->res_cold = cold;
+			r_ptr->res_pois = pois;
 
 			/* Next... */
 			continue;

@@ -1438,7 +1438,6 @@ static void display_player_xtra_info(void)
 
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
 	/* Range attacks */
 	if (o_ptr->k_idx && object_known_p(o_ptr))
@@ -1450,16 +1449,14 @@ static void display_player_xtra_info(void)
 	     if (ammo_ptr->k_idx && object_known_p(ammo_ptr))
 	     {
 	       if (object_known_p(ammo_ptr))
-		      sprintf(buf, "(%+d,%d*%dd%d%+d)", hit + ammo_ptr->to_h, 
-			      p_ptr->ammo_mult, o_ptr->dd, amplify_ds(o_ptr->dd, o_ptr->ds, o_ptr->to_d), 
-			      dam);
+		      sprintf(buf, "(%+d,%d*%dd%d)", hit + ammo_ptr->to_h, 
+			      p_ptr->ammo_mult, ammo_ptr->dd, amplify_ds(ammo_ptr->dd, ammo_ptr->ds, ammo_ptr->to_d));
 	       else
-		      sprintf(buf, "(%+d,%d*%dd%d%+d)", hit + ammo_ptr->to_h, 
-			      p_ptr->ammo_mult, ammo_ptr->dd, ammo_ptr->ds, 
-			      dam);
+		      sprintf(buf, "(%+d,%d*%dd%d)", hit + ammo_ptr->to_h, 
+			      p_ptr->ammo_mult, ammo_ptr->dd, ammo_ptr->ds);
 	     }
 	     else /* Without useable ammo */
-		  sprintf(buf, "(%+d,%d*%d)", hit, p_ptr->ammo_mult, dam);
+		  sprintf(buf, "(%+d,*%d)", hit, p_ptr->ammo_mult);
 	}
 	else /* No useable missile weapon */
 	     sprintf(buf, "(%+d,%+d)", hit, dam);
@@ -2037,7 +2034,7 @@ static void display_player_sust_info(void)
 void display_player_resist_info()
 {
      int i, j, n, row = 12;
-     cptr res_name[RES_MAX] = {"Ac","El","Fi","Co","Po"};
+     cptr res_name[RES_MAX] = {"El","Fi","Co","Po"};
      byte attr = TERM_WHITE;
 
      for (i = 0; i < RES_MAX; i++)

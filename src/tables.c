@@ -1042,7 +1042,6 @@ const player_sex sex_info[MAX_SEXES] =
  *	{STR,INT,WIS,DEX,CON,CHR},
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *	Exp
  *      Base HP, HP/level, HP/Constitution
  *      Base MP, MP/level, MP/Int or Wis
  *      Mana stat, Max spell weight
@@ -1054,7 +1053,6 @@ const player_class class_info[MAX_CLASS] =
 		{ 17, 6, 9, 12, 15, 9 },
 		25, 18, 18, 1,  14, 2, 70, 55,
 		10, 7,  10, 0,  0,  0, 45, 45,
-		200,
 		55, 4, 8,
 		10, 2, 2,
 		A_WIS, 0
@@ -1065,7 +1063,6 @@ const player_class class_info[MAX_CLASS] =
 		{ 6, 28, 9, 15, 6, 15 },
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
-		200,
 		40, 2, 4,
 		35, 4, 4,
 		A_INT, 200
@@ -1076,7 +1073,6 @@ const player_class class_info[MAX_CLASS] =
 		{ 9, 9, 12, 12, 15, 9 },
 		25, 30, 32, 2,  24, 16, 48, 35,
 		7,  10, 12, 0,  0,   0, 20, 20,
-		200,
 		55, 2, 4,
 		20, 4, 4,
 		A_WIS, 300
@@ -1087,7 +1083,6 @@ const player_class class_info[MAX_CLASS] =
 		{ 12, 15, 9, 12, 12, 9 },
 		45, 32, 28, 5, 32, 24, 60, 66,
 		15, 10, 10, 0,  0,  0, 40, 30,
-		200,
 		50, 4, 6,
 		25, 3, 3,
 		A_INT, 300
@@ -1098,7 +1093,6 @@ const player_class class_info[MAX_CLASS] =
 		{ 12, 9, 9, 15, 12, 12 },
 		30, 32, 28, 3,  24, 16, 56, 72,
 		8,  10, 10, 0,  0,  0,  30, 45,
-		200,
 		50, 4, 6,
 		15, 3, 3,
 		A_INT, 450
@@ -1109,21 +1103,19 @@ const player_class class_info[MAX_CLASS] =
 		{ 15, 9, 12, 12, 15, 15 },
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0, 35, 30,
-		200,
 		55, 4, 6,
 		15, 3, 3,
 		A_WIS, 0
 	},
 
 	{
-	       "Necromancer",
+	        "Necromancer",
 		{ 9, 15, 6, 15, 9, 9 },
-	       30, 36, 32, 2,  16, 20, 34, 20,
-	       7,  13, 12, 0,  0,  0,  15, 15,
-	       200,
-	       45, 3, 4,
-	       25, 5, 4,
-	       A_INT, 300
+		30, 36, 32, 2,  16, 20, 34, 20,
+		7,  13, 12, 0,  0,  0,  15, 15,
+		45, 3, 4,
+		25, 5, 4,
+		A_INT, 300
 	}
 };
 
@@ -1143,8 +1135,8 @@ const player_skill skill_info[MAX_SKILLS] =
      { "Polearm Mastery", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Hafted Mastery", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Axe Mastery", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
-     { "Double Swing", 6, 999, 999, SKILL_MANA, 3, 1 }, /* 3.1 to 6 */
-     { "Stun", 6, 999, 999, SKILL_MANA, 4, 8 }, /* 4.8 to 20 */
+     { "Double Swing", 6, 999, 999, SKILL_ATTACK, 3, 1 }, /* 3.1 to 6 */
+     { "Stun", 6, 999, 999, SKILL_ATTACK, 4, 8 }, /* 4.8 to 20 */
      { "Berserk", 6, 999, 999, SKILL_MANA, 12, 9 }, /* 12.9 to 30 */
      { "Increased Speed", 24, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Frenzy", 24, BARB_DOUBLE, BARB_SPEED, SKILL_AURA, 3, 0 }, /* 3 */
@@ -1192,7 +1184,7 @@ const player_skill skill_info[MAX_SKILLS] =
      { "Lycanthropy", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Werewolf", 1, 999, 999, SKILL_SHAPESHIFT, 15, 0 },
      { "Werebear", 1, 999, 999, SKILL_SHAPESHIFT, 15, 0 },
-     { "Maul", 6, DRUID_BEAR, 999, SKILL_MANA, 4, 8 }, /* 4.8 to 20 */
+     { "Maul", 6, DRUID_BEAR, 999, SKILL_ATTACK, 4, 8 }, /* 4.8 to 20 */
      { "Feral Rage", 12, DRUID_WOLF, 999, SKILL_MANA, 2, 29 }, /* 4.9 to 60 */
      { "Shockwave", 24, DRUID_BEAR, 999, SKILL_MANA, 6, 57 }, /* 11.7 to 120 */
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
@@ -1213,11 +1205,11 @@ const player_skill skill_info[MAX_SKILLS] =
 
      { "Claw Mastery", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Dodging", 1, 999, 999, SKILL_PASSIVE, 0, 0 },
-     { "Tiger Strike", 1, 999, 999, SKILL_AURA, 1, 1 }, /* 1 to 3 */
-     { "Dragon Kick", 1, 999, 999, SKILL_MANA, 6, 3 }, /* 6.3 to 12 */
-     { "Dragon Claws", 6, 999, 999, SKILL_MANA, 3, 1 }, /* 3.1 to 6 */
+     { "Tiger Strike", 1, 999, 999, SKILL_CHARGE_UP, 1, 1 }, /* 1 to 3 */
+     { "Dragon Kick", 1, 999, 999, SKILL_FINISHING, 6, 3 }, /* 6.3 to 12 */
+     { "Dragon Claws", 6, 999, 999, SKILL_FINISHING, 3, 1 }, /* 3.1 to 6 */
      { "Burst of Speed", 6, 999, 999, SKILL_MANA, 10, 10 }, /* 11 to 30 */
-     { "Cobra Strike", 12, 999, 999, SKILL_AURA, 2, 3 }, /* 2.3 to 8 */
+     { "Cobra Strike", 12, 999, 999, SKILL_CHARGE_UP, 2, 3 }, /* 2.3 to 8 */
      { "Assasination", 12, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
@@ -1235,8 +1227,8 @@ const player_skill skill_info[MAX_SKILLS] =
 
      /* Amazon */
 
-     { "Jab", 1, 999, 999, SKILL_MANA, 2, 5 }, /* 2.5 to 12 */
-     { "Magic Ammunition", 1, 999, 999, SKILL_MANA, 10, -5 }, /* 10 to 0 */
+     { "Jab", 1, 999, 999, SKILL_ATTACK, 2, 5 }, /* 2.5 to 12 */
+     { "Magic Ammunition", 1, 999, 999, SKILL_ATTACK, 10, -5 }, /* 10 to 0 */
      { "Critical Strike", 12, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
@@ -1263,7 +1255,7 @@ const player_skill skill_info[MAX_SKILLS] =
      { "Might", 1, 999, 999, SKILL_AURA, 0, 0 },
      { "Smite Undead", 6, 999, 999, SKILL_MANA, 4, 23 }, /* 6.3 to 50 */
      { "Prayer", 6, 999, 999, SKILL_AURA, 2, 4 }, /* 2.4 to 10 */
-     { "Shield Bash", 6, 999, 999, SKILL_MANA, 2, 4 }, /* 2.4 to 10 */
+     { "Shield Bash", 6, 999, 999, SKILL_ATTACK, 2, 4 }, /* 2.4 to 10 */
      { "Holy Shield", 18, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Holy Light", 24, 999, 999, SKILL_AURA, 4, 13 }, /* 5.4 to 30 */
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
@@ -1304,6 +1296,17 @@ const player_skill skill_info[MAX_SKILLS] =
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
      { "Skill", 99, 999, 999, SKILL_PASSIVE, 0, 0 },
+};
+
+cptr skill_types[MAX_SKILL_TYPES] =
+{
+  "Passive",
+  "Spell",
+  "Aura",
+  "Shape",
+  "Charge",
+  "Finish",
+  "Attack",
 };
 
 /* Get the skill relating to an aura */

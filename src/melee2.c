@@ -104,7 +104,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
 
 		/* Know resistances */
-		if (p_ptr->res[RES_ACID] > 20) smart |= (SM_RES_ACID);
 		if (p_ptr->res[RES_ELEC] > 20) smart |= (SM_RES_ELEC);
 		if (p_ptr->res[RES_FIRE] > 20) smart |= (SM_RES_FIRE);
 		if (p_ptr->res[RES_COLD] > 20) smart |= (SM_RES_COLD);
@@ -126,13 +125,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	/* Nothing known */
 	if (!smart) return;
 
-
-	if (smart & (SM_RES_ACID))
-	{
-		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f4 &= ~(RF4_BR_ACID);
-		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f5 &= ~(RF5_BA_ACID);
-		if (int_outof(r_ptr, p_ptr->res[RES_ACID])) f5 &= ~(RF5_BO_ACID);
-	}
 
 	if (smart & (SM_RES_ELEC))
 	{
@@ -606,7 +598,7 @@ bool make_attack_spell(int m_idx)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k, chance, thrown_spell, rlev;
+	int chance, thrown_spell, rlev;
 
 #ifdef MONSTER_AI
 	int failrate;
@@ -624,11 +616,6 @@ bool make_attack_spell(int m_idx)
 	char ddesc[80];
 
 	bool no_innate = FALSE;
-
-	/* Target player */
-	int x = px;
-	int y = py;
-
 
 	/* Summon count */
 	int count = 0;
@@ -750,9 +737,9 @@ bool make_attack_spell(int m_idx)
 	{
 		/* Check for a clean bolt shot */
 		if ((f4 & (RF4_BOLT_MASK) ||
-			 f5 & (RF5_BOLT_MASK) ||
-			 f6 & (RF6_BOLT_MASK)) &&
-			!clean_shot(m_ptr->fy, m_ptr->fx, py, px))
+		     f5 & (RF5_BOLT_MASK) ||
+		     f6 & (RF6_BOLT_MASK)) &&
+		    !clean_shot(m_ptr->fy, m_ptr->fx, py, px))
 		{
 			/* Remove spells that will only hurt friends */
 			f4 &= ~(RF4_BOLT_MASK);
@@ -882,18 +869,6 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_BR_ACID */
-		case RF4_OFFSET+8:
-		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s breathes.", m_name);
-			else msg_format("%^s breathes acid.", m_name);
-			breath(m_idx, GF_ACID,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
-			update_smart_learn(m_idx, DRS_RES_ACID);
-			break;
-		}
-
 		/* RF4_BR_ELEC */
 		case RF4_OFFSET+9:
 		{
@@ -919,13 +894,14 @@ bool make_attack_spell(int m_idx)
 		}
 
 		/* RF4_BR_COLD */
+		/* reduced the max from 1600 to 1200 as cold slows */
 		case RF4_OFFSET+11:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes frost.", m_name);
 			breath(m_idx, GF_COLD,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+			       ((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)));
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
@@ -1137,18 +1113,7 @@ bool make_attack_spell(int m_idx)
 		}
 
 
-
-		/* RF5_BA_ACID */
-		case RF5_OFFSET+0:
-		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s casts an acid ball.", m_name);
-			breath(m_idx, GF_ACID,
-			       randint(rlev * 3) + 15);
-			update_smart_learn(m_idx, DRS_RES_ACID);
-			break;
-		}
+		/* Changed the damage of elemental balls */
 
 		/* RF5_BA_ELEC */
 		case RF5_OFFSET+1:
@@ -1156,8 +1121,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a lightning ball.", m_name);
-			breath(m_idx, GF_ELEC,
-			       randint(rlev * 3 / 2) + 8);
+			breath(m_idx, GF_ELEC, randint(rlev * 3 / 2) + 10);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -1168,32 +1132,31 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire ball.", m_name);
-			breath(m_idx, GF_FIRE,
-			       randint(rlev * 7 / 2) + 10);
+			breath(m_idx, GF_FIRE, randint(rlev * 3 / 2) + 10);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			break;
 		}
 
 		/* RF5_BA_COLD */
+		/* reduced slightly as cold slows */
 		case RF5_OFFSET+3:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost ball.", m_name);
-			breath(m_idx, GF_COLD,
-			       randint(rlev * 3 / 2) + 10);
+			breath(m_idx, GF_COLD, randint(rlev) + 10);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
 
 		/* RF5_BA_POIS */
+		/* reduced, as poison persists */
 		case RF5_OFFSET+4:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a stinking cloud.", m_name);
-			breath(m_idx, GF_POIS,
-			       damroll(12, 2));
+			breath(m_idx, GF_POIS, randint(rlev / 2) + 10);
 			update_smart_learn(m_idx, DRS_RES_POIS);
 			break;
 		}
@@ -1454,17 +1417,7 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF5_BO_ACID */
-		case RF5_OFFSET+16:
-		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s casts a acid bolt.", m_name);
-			bolt(m_idx, GF_ACID,
-			     damroll(7, 8) + (rlev / 3));
-			update_smart_learn(m_idx, DRS_RES_ACID);
-			break;
-		}
+		/* Changed the damage of elemental bolts */
 
 		/* RF5_BO_ELEC */
 		case RF5_OFFSET+17:
@@ -1472,8 +1425,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a lightning bolt.", m_name);
-			bolt(m_idx, GF_ELEC,
-			     damroll(4, 8) + (rlev / 3));
+			bolt(m_idx, GF_ELEC, damroll(rlev * 3 / 2, 8));
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -1484,28 +1436,32 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire bolt.", m_name);
-			bolt(m_idx, GF_FIRE,
-			     damroll(9, 8) + (rlev / 3));
+			bolt(m_idx, GF_FIRE, damroll(rlev * 3 / 2, 8));
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			break;
 		}
 
 		/* RF5_BO_COLD */
+		/* does less damage because cold also slows */
 		case RF5_OFFSET+19:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost bolt.", m_name);
-			bolt(m_idx, GF_COLD,
-			     damroll(6, 8) + (rlev / 3));
+			bolt(m_idx, GF_COLD, damroll(rlev * 3 / 2, 6));
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
 
 		/* RF5_BO_POIS */
+		/* does less damage because poison persists */
 		case RF5_OFFSET+20:
 		{
-			/* XXX XXX XXX */
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a poison bolt.", m_name);
+			bolt(m_idx, GF_POIS, damroll(rlev * 3 / 2, 4));
+			update_smart_learn(m_idx, DRS_RES_POIS);
 			break;
 		}
 
@@ -1931,15 +1887,14 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons %s %s.", m_name, m_poss,
-			                ((r_ptr->flags1) & RF1_UNIQUE ?
-			                 "minions" : "kin"));
+					(r_ptr->escort != 0 || (r_ptr->flags1) & RF1_UNIQUE) ? "minions" : "kin");
 
 			/* Hack -- Set the letter of the monsters to summon */
-			summon_kin_type = r_ptr->d_char;
-			for (k = 0; k < 6; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_KIN);
-			}
+			if (r_ptr->escort == 0) /* Same as the current monster */
+			  summon_kin_type = m_ptr->r_idx;
+			else /* Escort */
+			  summon_kin_type = r_ptr->escort;
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_KIN);
 			if (blind && count)
 			{
 				msg_print("You hear many things appear nearby.");
@@ -1953,10 +1908,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater demons!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON);
 			if (blind && count)
 			{
 				msg_print("You hear many evil things appear nearby.");
@@ -1970,10 +1922,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons help!", m_name);
-			for (k = 0; k < 1; k++)
-			{
-				count += summon_specific(y, x, rlev, 0);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, 0);
 			if (blind && count)
 			{
 				msg_print("You hear something appear nearby.");
@@ -1987,10 +1936,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons monsters!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, 0);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, 0);
 			if (blind && count)
 			{
 				msg_print("You hear many things appear nearby.");
@@ -1998,88 +1944,33 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_ANT */
+		/* RF6_S_XX1 */
 		case RF6_OFFSET+20:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ants.", m_name);
-			for (k = 0; k < 6; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_ANT);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
-			break;
+		       break;
 		}
 
-		/* RF6_S_SPIDER */
+		/* RF6_S_XX2 */
 		case RF6_OFFSET+21:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons spiders.", m_name);
-			for (k = 0; k < 6; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
 			break;
 		}
 
-		/* RF6_S_HOUND */
+		/* RF6_S_XX3 */
 		case RF6_OFFSET+22:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hounds.", m_name);
-			for (k = 0; k < 6; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HOUND);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
 			break;
 		}
 
-		/* RF6_S_HYDRA */
+		/* RF6_S_XX4 */
 		case RF6_OFFSET+23:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hydras.", m_name);
-			for (k = 0; k < 6; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many things appear nearby.");
-			}
 			break;
 		}
 
-		/* RF6_S_ANGEL */
+		/* RF6_S_XX5 */
 		case RF6_OFFSET+24:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons an angel!", m_name);
-			for (k = 0; k < 1; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_ANGEL);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear something appear nearby.");
-			}
 			break;
 		}
 
@@ -2089,10 +1980,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a hellish adversary!", m_name);
-			for (k = 0; k < 1; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_DEMON);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DEMON);
 			if (blind && count)
 			{
 				msg_print("You hear something appear nearby.");
@@ -2106,10 +1994,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons an undead adversary!", m_name);
-			for (k = 0; k < 1; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNDEAD);
 			if (blind && count)
 			{
 				msg_print("You hear something appear nearby.");
@@ -2117,20 +2002,9 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_DRAGON */
+		/* RF6_S_XX6 */
 		case RF6_OFFSET+27:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a dragon!", m_name);
-			for (k = 0; k < 1; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear something appear nearby.");
-			}
 			break;
 		}
 
@@ -2140,10 +2014,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater undead!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			if (blind && count)
 			{
 				msg_print("You hear many creepy things appear nearby.");
@@ -2151,20 +2022,9 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_HI_DRAGON */
+		/* RF6_S_XX7 */
 		case RF6_OFFSET+29:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ancient dragons!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
-			}
-			if (blind && count)
-			{
-				msg_print("You hear many powerful things appear nearby.");
-			}
 			break;
 		}
 
@@ -2174,14 +2034,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons mighty undead opponents!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_WRAITH);
-			}
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_WRAITH);
 			if (blind && count)
 			{
 				msg_print("You hear many creepy things appear nearby.");
@@ -2195,14 +2048,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons special opponents!", m_name);
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
-			}
-			for (k = 0; k < 8; k++)
-			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
-			}
+			count = summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNIQUE);
 			if (blind && count)
 			{
 				msg_print("You hear many powerful things appear nearby.");
@@ -2882,7 +2728,8 @@ static bool get_moves(int m_idx, int mm[5])
 
 	/* Normal animal packs try to get the player out of corridors. */
 	if (smart_packs &&
-	    (r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL) &&
+	    (r_ptr->group_max > 1 || (r_ptr->flags1 & (RF1_ESCORT))) && 
+	    (r_ptr->flags3 & RF3_ANIMAL) &&
 	    !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
 	{
 		int i, room = 0;
@@ -2941,7 +2788,7 @@ static bool get_moves(int m_idx, int mm[5])
 #ifdef MONSTER_AI
 
 	/* Monster groups try to surround the player */
-	if (!done && smart_packs && (r_ptr->flags1 & RF1_FRIENDS))
+	if (!done && smart_packs && (r_ptr->group_max > 1 || (r_ptr->flags1 & (RF1_ESCORT))))
 	{
 		int i;
 
@@ -3915,11 +3762,6 @@ static void process_monster(int m_idx)
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
-					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
 					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);

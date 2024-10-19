@@ -2,6 +2,7 @@
 rm lib/data/*.raw
 rm lib/apex/scores.raw
 rm lib/*/*~
+rm docs/*~
 rm src/*~
 rm *~
 rm angband

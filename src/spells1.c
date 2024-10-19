@@ -387,7 +387,6 @@ static byte spell_color(int type)
 	switch (type)
 	{
 		case GF_MISSILE:	return (TERM_VIOLET);
-		case GF_ACID:		return (TERM_SLATE);
 		case GF_ELEC:		return (TERM_BLUE);
 		case GF_FIRE:		return (TERM_RED);
 		case GF_COLD:		return (TERM_WHITE);
@@ -557,63 +556,6 @@ void take_hit(int dam, cptr kb_str)
 
 
 /*
- * Does a given class of objects (usually) hate acid?
- * Note that acid can either melt or corrode something.
- */
-static bool hates_acid(const object_type *o_ptr)
-{
-	/* Analyze the type */
-	switch (o_ptr->tval)
-	{
-		/* Wearable items */
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-	        case TV_AXE:
-		case TV_SWORD:
-		case TV_HAFTED:
-	        case TV_CLAW:
-		case TV_POLEARM:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			return (TRUE);
-		}
-
-		/* Staffs/Scrolls are wood/paper */
-		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
-
-		/* Ouch */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
-		/* Junk is useless */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
  * Does a given object (usually) hate electricity?
  */
 static bool hates_elec(const object_type *o_ptr)
@@ -698,19 +640,6 @@ static bool hates_cold(const object_type *o_ptr)
 
 
 
-
-
-/*
- * Melt something
- */
-static int set_acid_destroy(const object_type *o_ptr)
-{
-	u32b f1, f2, f3;
-	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
-	return (TRUE);
-}
 
 
 /*
@@ -829,94 +758,6 @@ static int inven_damage(inven_func typ, int perc)
 
 
 /*
- * Acid has hit the player, attempt to affect some armor.
- *
- * Note that the "base armor" of an object never changes.
- *
- * If any armor is damaged (or resists), the player takes less damage.
- */
-static int minus_ac(void)
-{
-	object_type *o_ptr = NULL;
-
-	u32b f1, f2, f3;
-
-	char o_name[80];
-
-
-	/* Pick a (possibly empty) inventory slot */
-	switch (randint(6))
-	{
-		case 1: o_ptr = &inventory[INVEN_BODY]; break;
-		case 2: o_ptr = &inventory[INVEN_ARM]; break;
-		case 3: o_ptr = &inventory[INVEN_OUTER]; break;
-		case 4: o_ptr = &inventory[INVEN_HANDS]; break;
-		case 5: o_ptr = &inventory[INVEN_HEAD]; break;
-		case 6: o_ptr = &inventory[INVEN_FEET]; break;
-	}
-
-	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
-
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0);
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Object resists */
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		msg_format("Your %s is unaffected!", o_name);
-
-		return (TRUE);
-	}
-
-	/* Message */
-	msg_format("Your %s is damaged!", o_name);
-
-	/* Damage the item */
-	o_ptr->to_a--;
-
-	/* Calculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Item was damaged */
-	return (TRUE);
-}
-
-
-/*
- * Hurt the player with Acid
- */
-void acid_dam(int dam, cptr kb_str)
-{
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	dam = apply_resistance(dam, p_ptr->res[RES_ACID]);
-
-	/* Total Immunity */
-	if (dam <= 0) return;
-
-	/* If any armor gets hit, defend the player */
-	if (minus_ac()) dam = (dam + 1) / 2;
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	inven_damage(set_acid_destroy, inv);
-}
-
-
-/*
  * Hurt the player with electricity
  */
 void elec_dam(int dam, cptr kb_str)
@@ -996,7 +837,7 @@ void cold_dam(int dam, cptr kb_str)
  */
 bool inc_stat(int stat)
 {
-	int value, gain;
+	int value;
 
 	/* Then augment the current/max stat */
 	value = p_ptr->stat_cur[stat];
@@ -1004,27 +845,20 @@ bool inc_stat(int stat)
 	/* Cannot go above 18/100 */
 	if (value < 18+100)
 	{
-		/* Gain one (sometimes two) points */
+		/* Gain one point */
 		if (value < 18)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
-			value += gain;
+			value += 1;
 		}
 
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
+		/* Gain 1/10th of distance to 18/100 */
+		else if (value < 18+100)
 		{
-			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
-
-			/* Paranoia */
-			if (gain < 1) gain = 1;
-
 			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
+			value += randint(10);
 
 			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
+			if (value > 18+100) value = 18 + 100;
 		}
 
 		/* Gain one point at a time */
@@ -1393,7 +1227,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	switch (typ)
 	{
 		/* Ignore most effects */
-		case GF_ACID:
 		case GF_ELEC:
 		case GF_FIRE:
 		case GF_COLD:
@@ -1767,18 +1600,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		/* Analyze the type */
 		switch (typ)
 		{
-			/* Acid -- Lots of things */
-			case GF_ACID:
-			{
-				if (hates_acid(o_ptr))
-				{
-					do_kill = TRUE;
-					note_kill = (plural ? " melt!" : " melts!");
-					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
-				}
-				break;
-			}
-
 			/* Elec -- Rings and Wands */
 			case GF_ELEC:
 			{
@@ -2112,19 +1933,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Acid */
-		case GF_ACID:
-		{
-			if (seen) obvious = TRUE;
-			if (r_ptr->flags3 & (RF3_IM_ACID))
-			{
-				note = " resists a lot.";
-				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_ACID);
-			}
-			break;
-		}
-
 		/* Electricity */
 		case GF_ELEC:
 		{
@@ -2134,6 +1942,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_ELEC);
+			}
+			else if (r_ptr->res_elec > 0)
+			{
+			        dam = (dam * r_ptr->res_elec) / 100;
+				if (r_ptr->res_elec >= 75)
+				  note = " resists a lot.";
+				else if (r_ptr->res_elec >= 25)
+				  note = " resists.";
+				else note = " resists slightly.";
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_ELEC);
+			}
+			else if (r_ptr->res_elec < 0)
+		        {
+			        dam += (dam * abs(r_ptr->res_elec)) / 100;
+				note = " is shocked.";
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_ELEC); 
 			}
 			break;
 		}
@@ -2148,6 +1972,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_FIRE);
 			}
+			else if (r_ptr->res_fire > 0)
+			{
+			        dam = (dam * r_ptr->res_fire) / 100;
+				if (r_ptr->res_fire >= 75)
+				  note = " resists a lot.";
+				else if (r_ptr->res_fire >= 25)
+				  note = " resists.";
+				else note = " resists slightly.";
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_FIRE);
+			}
+			else if (r_ptr->res_fire < 0)
+		        {
+			        dam += (dam * abs(r_ptr->res_fire)) / 100;
+				note = " is burnt.";
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_FIRE);
+			}
 			break;
 		}
 
@@ -2160,6 +2000,30 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
+			}
+			else if (r_ptr->res_cold > 0)
+			{
+			        dam = (dam * r_ptr->res_cold) / 100;
+				if (r_ptr->res_cold >= 75)
+				  note = " resists a lot.";
+				else if (r_ptr->res_cold >= 25)
+				  note = " resists.";
+				else note = " resists slightly.";
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
+
+				if (m_ptr->mspeed > 60 &&
+				    rand_int(100) + 1 > r_ptr->res_cold)
+				{
+				    m_ptr->mspeed -= 10;
+				    note = " starts moving slower.";
+				}
+			}
+			else if (r_ptr->res_cold < 0)
+		        {
+			        dam += (dam * abs(r_ptr->res_cold)) / 100;
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_COLD);
+				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+				note = " starts moving slower.";
 			}
 			else
 			{
@@ -2189,6 +2053,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
+			}
+			else if (r_ptr->res_pois > 0)
+			{
+			        dam = (dam * r_ptr->res_pois) / 100;
+				if (r_ptr->res_pois >= 75)
+				  note = " resists a lot.";
+				else if (r_ptr->res_pois >= 25)
+				  note = " resists.";
+				else note = " resists slightly.";
+				if (seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
+			}
+			else if (r_ptr->res_pois < 0)
+		        {
+			        dam += (dam * abs(r_ptr->res_pois)) / 100;
+				note = " is poisoned.";
+				if (seen) l_ptr->r_flags3 |= (RF3_HURT_POIS); 
 			}
 			break;
 		}
@@ -3297,14 +3177,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage */
 	switch (typ)
 	{
-		/* Standard damage -- hurts inventory too */
-		case GF_ACID:
-		{
-			if (fuzzy) msg_print("You are hit by acid!");
-			acid_dam(dam, killer);
-			break;
-		}
-
 		/* Standard damage -- hurts inventory too */
 		case GF_FIRE:
 		{

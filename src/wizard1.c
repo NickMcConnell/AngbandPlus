@@ -487,7 +487,6 @@ static const flag_desc slay_flags_desc[] =
  */
 static const flag_desc brand_flags_desc[] =
 {
-	{ TR1_BRAND_ACID,         "Acid Brand" },
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
@@ -930,18 +929,18 @@ static void print_header(void)
 /*
  * This is somewhat ugly.
  *
- * Given a header ("Resist", e.g.), a list ("Fire", "Cold", Acid", e.g.),
+ * Given a header ("Resist", e.g.), a list ("Fire", "Cold", e.g.),
  * and a separator character (',', e.g.), write the list to the spoiler file
  * in a "nice" format, such as:
  *
- *      Resist Fire, Cold, Acid
+ *      Resist Fire, Cold
  *
  * That was a simple example, but when the list is long, a line wrap
  * should occur, and this should induce a new level of indention if
  * a list is being spread across lines. So for example, Bladeturner's
  * list of resistances should look something like this
  *
- *     Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark, Blindness,
+ *     Resist Lightning, Fire, Cold, Poison, Light, Dark, Blindness,
  *       Confusion, Sound, Shards, Nether, Nexus, Chaos, Disenchantment
  *
  * However, the code distinguishes between a single list of many items vs.
@@ -1333,13 +1332,13 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(ac, "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
+		if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
+			sprintf(hp, "%d", r_ptr->hside);
 		}
 		else
 		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
+			sprintf(hp, "%d-%d", r_ptr->hdice, r_ptr->hside);
 		}
 
 
@@ -1594,13 +1593,13 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Hitpoints */
-		if ((flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
+		if (flags1 & (RF1_FORCE_MAXHP))
 		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
+			sprintf(buf, "Hp:%d  ", r_ptr->hside);
 		}
 		else
 		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
+			sprintf(buf, "Hp:%d-%d  ", r_ptr->hdice, r_ptr->hside);
 		}
 		spoil_out(buf);
 
@@ -1624,11 +1623,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
 		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
 
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+		if (flags3 & (RF3_DEMON)) spoil_out(" demon");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1672,15 +1667,13 @@ static void spoil_mon_info(cptr fname)
 
 #endif
 
-		if (flags1 & (RF1_ESCORT))
+		if (r_ptr->flags1 & (RF1_ESCORT))
 		{
-			sprintf(buf, "%s usually appears with ", wd_che[msex]);
+			sprintf(buf, "%s usually appears with an escort.  ", wd_che[msex]);
 			spoil_out(buf);
-			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
-			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+		if (r_ptr->group_max > 1)
 		{
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
 			spoil_out(buf);
@@ -1713,7 +1706,6 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect breaths */
 		vn = 0;
-		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
 		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
 		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
 		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
@@ -1754,7 +1746,6 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect spells */
 		vn = 0;
-		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "produce acid balls";
 		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "produce lightning balls";
 		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "produce fire balls";
 		if (flags5 & (RF5_BA_COLD))           vp[vn++] = "produce frost balls";
@@ -1770,7 +1761,6 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds";
 		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds";
 		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "cause mortal wounds";
-		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "produce acid bolts";
 		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "produce lightning bolts";
 		if (flags5 & (RF5_BO_FIRE))           vp[vn++] = "produce fire bolts";
 		if (flags5 & (RF5_BO_COLD))           vp[vn++] = "produce frost bolts";
@@ -1806,16 +1796,16 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
-		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
-		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
+		if (flags6 & (RF6_S_XX1))             vp[vn++] = "do nothing";
+		if (flags6 & (RF6_S_XX2))             vp[vn++] = "do nothing";
+		if (flags6 & (RF6_S_XX3))             vp[vn++] = "do nothing";
+		if (flags6 & (RF6_S_XX4))             vp[vn++] = "do nothing";
+		if (flags6 & (RF6_S_XX5))             vp[vn++] = "do nothing";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
-		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
+		if (flags6 & (RF6_S_XX6))             vp[vn++] = "do nothing";
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
+		if (flags6 & (RF6_S_XX7))             vp[vn++] = "do nothing";
 		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon ring wraiths";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
@@ -1908,8 +1898,10 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
+		if (flags3 & (RF3_HURT_ELEC)) vp[vn++] = "lightning";
 		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+		if (flags3 & (RF3_HURT_POIS)) vp[vn++] = "poison";
 
 		if (vn)
 		{
@@ -1926,6 +1918,10 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect resistances */
 		vn = 0;
+		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
+		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
+		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
+		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
 		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
 		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
 		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
@@ -2109,7 +2105,6 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EAT_ITEM:	q = "steal items"; break;
 				case RBE_EAT_FOOD:	q = "eat your food"; break;
 				case RBE_EAT_LITE:	q = "absorb light"; break;
-				case RBE_ACID:	q = "shoot acid"; break;
 				case RBE_ELEC:	q = "electrify"; break;
 				case RBE_FIRE:	q = "burn"; break;
 				case RBE_COLD:	q = "freeze"; break;
@@ -2157,10 +2152,10 @@ static void spoil_mon_info(cptr fname)
 				if (r_ptr->blow[j].d_dice && r_ptr->blow[j].d_side)
 				{
 					spoil_out(" with damage");
-					if (r_ptr->blow[j].d_side == 1)
-						sprintf(buf, " %d", r_ptr->blow[j].d_dice);
+					if (r_ptr->blow[j].d_side == r_ptr->blow[j].d_dice)
+					        sprintf(buf, " %d", r_ptr->blow[j].d_dice);
 					else
-						sprintf(buf, " %dd%d",
+					sprintf(buf, " %d-%d",
 					        r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side);
 					spoil_out(buf);
 				}

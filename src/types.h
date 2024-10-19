@@ -302,8 +302,8 @@ struct monster_blow
 {
 	byte method;
 	byte effect;
-	byte d_dice;
-	byte d_side;
+	u16b d_dice;
+	u16b d_side;
 };
 
 
@@ -331,8 +331,11 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+        byte group_min;
+        byte group_max;
+
+	u16b hdice;				/* Creatures hit dice count */
+	u16b hside;				/* Creatures hit dice sides */
 
 	s16b ac;				/* Armour Class */
 
@@ -342,7 +345,7 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
+	s16b escort;				/* What it's escorted by */
 
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
@@ -354,10 +357,18 @@ struct monster_race
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
 
+        s16b res_dmg;
+        s16b res_magic;
+        s16b res_fire;
+        s16b res_elec;
+        s16b res_cold;
+        s16b res_pois;
+
 	monster_blow blow[4];	/* Up to four blows per round */
 
 
 	byte level;				/* Level of creature */
+        byte act;                       /* Acts I-V, 0 for town monsters */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -502,6 +513,8 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+        byte res[RES_MAX];      /* percentile resistance */
 };
 
 
@@ -590,6 +603,7 @@ struct alloc_entry
  */
 struct quest
 {
+        cptr desc;
 	byte level;		/* Dungeon level */
 	int r_idx;		/* Monster race */
 
@@ -690,8 +704,6 @@ struct player_class
 	s16b x_thn;			/* extra to hit (normal) */
 	s16b x_thb;			/* extra to hit (bows) */
 
-	s16b c_exp;			/* Class experience factor */
-
         s16b c_mhp;                     /* Base hp */
         s16b x_mhp;                     /* HP per level */
         s16b a_mhp;                     /* HP per Constitution point above base */
@@ -759,7 +771,7 @@ struct player_type
 	byte pclass;		/* Class index */
 	byte oops;			/* Unused */
 
-	byte expfact;		/* Experience factor */
+	u16b expfact;		/* Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */

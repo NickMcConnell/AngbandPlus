@@ -52,6 +52,7 @@ extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
 extern const player_class class_info[MAX_CLASS];
 extern const player_skill skill_info[MAX_SKILLS];
+extern cptr skill_types[MAX_SKILL_TYPES];
 extern int aura_skill[MAX_AURA];
 extern cptr aura_begin_string[MAX_AURA];
 extern cptr aura_end_string[MAX_AURA];
@@ -273,7 +274,7 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
-extern bool is_quest(int level);
+extern int is_quest(int level);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -407,6 +408,8 @@ extern void signals_init(void);
 extern void display_scores_aux(int from, int to, int note, high_score *score);
 
 /* generate.c */
+extern int get_act();
+extern bool get_mon_act(int r_idx);
 extern void generate_cave(void);
 
 /* init2.c */

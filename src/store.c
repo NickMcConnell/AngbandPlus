@@ -1353,14 +1353,15 @@ static void store_create(void)
 		else if (store_num == STORE_ALCHEMY)
 		{
 		        /* Random level */
-		        level = p_ptr->max_depth + 10;
+		        level = rand_range(p_ptr->max_depth / 2, p_ptr->depth + 10);
 			if (level > 127) level = 127;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
 
 			/* Level for magic */
-			level = rand_range((level * 2 > 127) ? 127 : level * 2 , 127);
+			level = rand_range(level / 2,
+				     (level * 2 > 127 ? 127 : level * 2));
 
 			/* Ignore always-known items */
 			if (k_info[k_idx].tval <= TV_CHEST ||

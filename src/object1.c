@@ -839,12 +839,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			break;
 		}
 
-		case OBJECT_XTRA_TYPE_RESIST:
-		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
+		/* case OBJECT_XTRA_TYPE_RESIST: */
 
 		case OBJECT_XTRA_TYPE_POWER:
 		{
@@ -882,21 +877,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 byte object_resist(const object_type *o_ptr, int res_type)
 {
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->name1];
-	ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-	int i = 0;
-
-	/* Random abilities for ego items */
-	if (o_ptr->name2)
-	{
-		if ((o_ptr->xtra1 == OBJECT_XTRA_TYPE_RESIST) &&
-		    (o_ptr->xtra2 == res_type))
-		     i = 25;
-	}
-
-	return (k_ptr->res[res_type] + a_ptr->res[res_type] + e_ptr->res[res_type] + i);
+     return (o_ptr->res[res_type]);
 }
 
 /*
@@ -904,25 +885,10 @@ byte object_resist(const object_type *o_ptr, int res_type)
  */
 byte object_resist_known(const object_type *o_ptr, int res_type)
 {
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->name1];
-	ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-	int res = 0;
-
-	if (object_known_p(o_ptr)) 
-	{
-		res = k_ptr->res[res_type] + e_ptr->res[res_type] + a_ptr->res[res_type];
-		/* Known random ego-item resists */
-		if (o_ptr->name2 && (o_ptr->ident & IDENT_MENTAL))
-		{
-		     if ((o_ptr->xtra1 == OBJECT_XTRA_TYPE_RESIST) &&
-			 (o_ptr->xtra2 == res_type))
-			  res += 25;
-		}
-	}
-
-	return (res);
+     if (object_known_p(o_ptr)) 
+	  return (o_ptr->res[res_type]);
+     
+     return (0);
 }
 
 
@@ -2106,7 +2072,7 @@ static cptr act_description[ACT_MAX] =
 	"frost ball (100)",
 	"frost bolt (12d8)",
 	"large frost ball (200)",
-	"acid bolt (5d8)",
+	NULL,
 	"recharge item I",
 	"sleep II",
 	"lightning bolt (4d8)",
@@ -2197,10 +2163,6 @@ cptr item_activation(const object_type *o_ptr)
 		{
 			return "breathe frost (110) every 450+d450 turns";
 		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
 		case SV_DRAGON_GREEN:
 		{
 			return "breathe poison gas (150) every 450+d450 turns";
@@ -2277,33 +2239,11 @@ static cptr device_chance(const object_type *o_ptr, bool artifact)
      /* Gah. Can't return a formatted string */
      if (artifact)
      {
-	  if (chance < 3) return ("You have almost no chance of activating it for..."); 	  
-	  else if (chance < 6) return ("You have around a 1/20 chance of activating it for..."); 
-	  else if (chance < 16) return ("You have around a 1/10 chance of activating it for...");
-	  else if (chance < 26) return ("You have around a 2/10 chance of activating it for...");
-	  else if (chance < 36) return ("You have around a 3/10 chance of activating it for...");
-	  else if (chance < 46) return ("You have around a 4/10 chance of activating it for...");
-	  else if (chance < 56) return ("You have around a 5/10 chance of activating it for...");
-	  else if (chance < 66) return ("You have around a 6/10 chance of activating it for...");
-	  else if (chance < 76) return ("You have around a 7/10 chance of activating it for...");
-	  else if (chance < 86) return ("You have around a 8/10 chance of activating it for...");
-	  else if (chance < 96) return ("You have around a 9/10 chance of activating it for...");
-	  else return ("You have an almost certain chance of activating it for...");
+       return (format("You have a %d%% chance of activating it.", chance));
      }
      else
      {
-	  if (chance < 3) return ("You have almost no chance of using it."); 
-	  else if (chance < 6) return ("You have around a 1/20 chance of using it."); 
-	  else if (chance < 16) return ("You have around a 1/10 chance of using it.");
-	  else if (chance < 26) return ("You have around a 2/10 chance of using it.");
-	  else if (chance < 36) return ("You have around a 3/10 chance of using it.");
-	  else if (chance < 46) return ("You have around a 4/10 chance of using it.");
-	  else if (chance < 56) return ("You have around a 5/10 chance of using it.");
-	  else if (chance < 66) return ("You have around a 6/10 chance of using it.");
-	  else if (chance < 76) return ("You have around a 7/10 chance of using it.");
-	  else if (chance < 86) return ("You have around a 8/10 chance of using it.");
-	  else if (chance < 96) return ("You have around a 9/10 chance of using it.");
-	  else return ("You have an almost certain chance of using it.");
+       return (format("You have a %d%% chance of using it.", chance));
      }
 }
 
@@ -2371,10 +2311,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	    o_ptr->xtra1 < OBJECT_XTRA_TYPE_SKILL_MULTI &&
 	    object_known_p(o_ptr))
 	{
-	     if (p_ptr->skill[o_ptr->xtra2])
-		  info[i++] = format("It increases your %s skill.", skill_info[o_ptr->xtra2].name);
+	     /* if the player has any skill points above those granted by the item */
+	     if (skill_value(o_ptr->xtra2) - o_ptr->pval > 0)
+		  info[i++] = format("It increases your %s skill by %d.", skill_info[o_ptr->xtra2].name, o_ptr->pval);
 	     else
-		  info[i++] = format("It grants you the %s skill.", skill_info[o_ptr->xtra2].name);
+		  info[i++] = format("It grants you the %s skill at level %d.", skill_info[o_ptr->xtra2].name, o_ptr->pval);
 	}
 	/* Multiple skills */
 	if (o_ptr->xtra1 >= OBJECT_XTRA_TYPE_SKILL_MULTI &&
@@ -2385,63 +2326,63 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	     {
 	     case OBJECT_SKILL_BARB_ALL:
 		  if (p_ptr->pclass == CLASS_WARRIOR)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you barbarian skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you barbarian skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_SORC_ALL:
 		  if (p_ptr->pclass == CLASS_MAGE)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you sorceress skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you sorceress skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_SORC_ALL_ELEC:
 		  if (p_ptr->pclass == CLASS_MAGE)
-		       info[i++] = "It increases your electricity skills.";
-		  else info[i++] = "It grants you electricity skills.";
+		       info[i++] = format("It increases your electricity skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you electricity skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_SORC_ALL_FIRE:
 		  if (p_ptr->pclass == CLASS_MAGE)
-		       info[i++] = "It increases your fire skills.";
-		  else info[i++] = "It grants you fire skills.";
+		       info[i++] = format("It increases your fire skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you fire skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_SORC_ALL_COLD:
 		  if (p_ptr->pclass == CLASS_MAGE)
-		       info[i++] = "It increases your cold skills.";
-		  else info[i++] = "It grants you cold skills.";
+		       info[i++] = format("It increases your cold skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you cold skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_ASSI_ALL:
 		  if (p_ptr->pclass == CLASS_ROGUE)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you assasin skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you assasin skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_ARCH_ALL:
 		  if (p_ptr->pclass == CLASS_RANGER)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you amazon skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you amazon skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_ARCH_ALL_POLEARM:
 		  if (p_ptr->pclass == CLASS_RANGER)
-		       info[i++] = "It increases your polearm skills.";
-		  else info[i++] = "It grants you polearm skills.";
+		       info[i++] = format("It increases your polearm skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you polearm skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_ARCH_ALL_BOW:
 		  if (p_ptr->pclass == CLASS_RANGER)
-		       info[i++] = "It increases your missile skills.";
-		  else info[i++] = "It grants you missile skills.";
+		       info[i++] = format("It increases your missile skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you missile skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_PALA_ALL:
 		  if (p_ptr->pclass == CLASS_PALADIN)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you paladin skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you paladin skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_NECRO_ALL:
 		  if (p_ptr->pclass == CLASS_NECRO)
-		       info[i++] = "It increases your class skills.";
-		  else info[i++] = "It grants you necromancer skills.";
+		       info[i++] = format("It increases your class skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you necromancer skills at level %d.", o_ptr->pval);
 		  break;
 	     case OBJECT_SKILL_NECRO_ALL_DMG:
 		  if (p_ptr->pclass == CLASS_NECRO)
-		       info[i++] = "It increases your damaging necromancer skills.";
-		  else info[i++] = "It grants you damaging necromancer skills.";
+		       info[i++] = format("It increases your damaging necromancer skills by %d.", o_ptr->pval);
+		  else info[i++] = format("It grants you damaging necromancer skills at level %d.", o_ptr->pval);
 		  break;
 	     }
 	}
@@ -2548,10 +2489,6 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It is a great bane of dragons.";
 	}
 
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
 	if (f1 & (TR1_BRAND_ELEC))
 	{
 		info[i++] = "It does extra damage from electricity.";
@@ -2594,29 +2531,24 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It sustains your charisma.";
 	}
 
-	if (object_resist_known(o_ptr, RES_ACID))
-	{
-		info[i++] = "It provides resistance to acid.";
-	}
-
 	if (object_resist_known(o_ptr, RES_ELEC))
 	{
-		info[i++] = "It provides resistance to electricity.";
+		info[i++] = format("It provides %d%% resistance to electricity.", object_resist_known(o_ptr, RES_ELEC));
 	}
 
 	if (object_resist_known(o_ptr, RES_FIRE))
 	{
-		info[i++] = "It provides resistance to fire.";
+		info[i++] = format("It provides %d%% resistance to fire.", object_resist_known(o_ptr, RES_FIRE));
 	}
 
 	if (object_resist_known(o_ptr, RES_COLD))
 	{
-		info[i++] = "It provides resistance to cold.";
+		info[i++] = format("It provides %d%% resistance to cold.", object_resist_known(o_ptr, RES_COLD));
 	}
 
 	if (object_resist_known(o_ptr, RES_POIS))
 	{
-		info[i++] = "It provides resistance to poison.";
+		info[i++] = format("It provides %d%% resistance to poison.", object_resist_known(o_ptr, RES_POIS));
 	}
 
 	if (f2 & (TR2_RES_FEAR))
@@ -2755,10 +2687,6 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		}
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
 	if (f3 & (TR3_IGNORE_ELEC))
 	{
 		info[i++] = "It cannot be harmed by electricity.";

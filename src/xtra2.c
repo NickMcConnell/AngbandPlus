@@ -993,54 +993,6 @@ bool set_tim_infra(int v)
 
 
 /*
- * Set "p_ptr->tim_res[RES_ACID]", notice observable changes
- */
-bool set_oppose_acid(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res[RES_ACID])
-		{
-			msg_print("You feel resistant to acid!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res[RES_ACID])
-		{
-			msg_print("You feel less resistant to acid.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res[RES_ACID] = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	p_ptr->update |= (PU_BONUS);
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
  * Set "p_ptr->tim_res[RES_ELEC]", notice observable changes
  */
 bool set_oppose_elec(int v)

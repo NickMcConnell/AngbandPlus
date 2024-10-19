@@ -607,15 +607,6 @@ void self_knowledge(void)
 		info[i++] = "You have a firm hold on your life force.";
 	}
 
-	if ((p_ptr->res[RES_ACID]) && (p_ptr->tim_res[RES_ACID]))
-	{
-		info[i++] = "You resist acid exceptionally well.";
-	}
-	else if ((p_ptr->res[RES_ACID]) || (p_ptr->tim_res[RES_ACID]))
-	{
-		info[i++] = "You are resistant to acid.";
-	}
-
 	if ((p_ptr->res[RES_ELEC]) && (p_ptr->tim_res[RES_ELEC]))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
@@ -789,10 +780,6 @@ void self_knowledge(void)
 	if (o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
-		{
-			info[i++] = "Your weapon melts your foes.";
-		}
 		if (f1 & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
@@ -2381,11 +2368,13 @@ int thunderstorm_aura(int power)
 	/* Bolts that were shot */
 	int shots = 0;
 
+	monster_type *monster = malloc(m_max * sizeof(monster_type));
+
 	/* Per bolt */
 	for (bolt = 0; bolt < bolts; bolt++)
 	{
 	     /* Monsters affected */
-	     monster_type *monster[m_max];
+	     //	     monster_type *monster[m_max];
 	     int num = 0;
 
 	     /* Get all (nearby) monsters */
@@ -2403,7 +2392,7 @@ int thunderstorm_aura(int power)
 		  /* Require line of sight */
 		  if (!player_has_los_bold(y, x)) continue;
 
-		  monster[num] = m_ptr;
+		  monster[num] = *m_ptr;
 		  num++;
 	     }
 	     
@@ -2413,7 +2402,7 @@ int thunderstorm_aura(int power)
 		  int dmg = damroll(5, (power * 2 * sorc_dmg_boost(SORC_ELEC_M)) / 100);
 		  
 		  /* Get a random monster */
-		  monster_type *m_ptr = monster[rand_int(num)];
+		  monster_type *m_ptr = &monster[rand_int(num)];
 		  
 		  /* Location */
 		  y = m_ptr->fy;
@@ -2425,6 +2414,8 @@ int thunderstorm_aura(int power)
 		  if (project(-1, 0, y, x, dmg, GF_ELEC, flg)) shots += 1;
 	     }
 	}
+
+	free(monster);
 
 	if (shots > 0) return (shots);
 

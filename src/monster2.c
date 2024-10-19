@@ -1471,11 +1471,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 	{
-		n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = r_ptr->hside;
 	}
 	else
 	{
-		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = rand_range(r_ptr->hdice, r_ptr->hside);
 	}
 
 	/* And start out fully healthy */
@@ -1531,12 +1531,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 /*
  * Attempt to place a "group" of monsters around the given location
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp)
+static int place_monster_group(int y, int x, int r_idx, bool slp)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
-	int total, extra = 0;
+	int total;
 
 	int hack_n;
 
@@ -1545,34 +1545,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 
 	/* Pick a group size */
-	total = randint(13);
-
-	/* Hard monsters, small groups */
-	if (r_ptr->level > p_ptr->depth)
-	{
-		extra = r_ptr->level - p_ptr->depth;
-		extra = 0 - randint(extra);
-	}
-
-	/* Easy monsters, large groups */
-	else if (r_ptr->level < p_ptr->depth)
-	{
-		extra = p_ptr->depth - r_ptr->level;
-		extra = randint(extra);
-	}
-
-	/* Hack -- limit group reduction */
-	if (extra > 12) extra = 12;
-
-	/* Modify the group size */
-	total += extra;
-
-	/* Minimum size */
-	if (total < 1) total = 1;
-
-	/* Maximum size */
-	if (total > GROUP_MAX) total = GROUP_MAX;
-
+	total = rand_range(r_ptr->group_min, r_ptr->group_max);
 
 	/* Save the rating */
 	old = rating;
@@ -1595,7 +1568,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			int mx = hx + ddx_ddd[i];
 			int my = hy + ddy_ddd[i];
 
-			scatter(&my, &mx, hy, hx, 10, 0);
+			scatter(&my, &mx, hy, hx, 2, 0);
 			
 			if (!in_bounds(my, mx)) continue;
 
@@ -1621,39 +1594,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 
 	/* Success */
-	return (TRUE);
+	return (total);
 }
 
-
-/*
- * Hack -- help pick an escort type
- */
-static int place_monster_idx = 0;
-
-/*
- * Hack -- help pick an escort type
- */
-static bool place_monster_okay(int r_idx)
-{
-	monster_race *r_ptr = &r_info[place_monster_idx];
-
-	monster_race *z_ptr = &r_info[r_idx];
-
-	/* Require similar "race" */
-	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
-
-	/* Skip more advanced monsters */
-	if (z_ptr->level > r_ptr->level) return (FALSE);
-
-	/* Skip unique monsters */
-	if (z_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-
-	/* Paranoia -- Skip identical monsters */
-	if (place_monster_idx == r_idx) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
 
 
 /*
@@ -1676,7 +1619,7 @@ static bool place_monster_okay(int r_idx)
  */
 bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 {
-	int i;
+	int i, group_num = 1;
 
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1690,20 +1633,31 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if (r_ptr->group_max > 1)
 	{
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp);
+		group_num = place_monster_group(y, x, r_idx, slp);
 	}
 
 
 	/* Escorts for certain monsters */
 	if (r_ptr->flags1 & (RF1_ESCORT))
 	{
+	        int num = 0, max_num = 0;
+		monster_race *re_ptr = &r_info[r_ptr->escort];
+
+		/* Give each member of the group an escort */
+		for (i = 0; i < group_num; i++)
+		{
+		  /* Min of 2 monsters in each escort */
+		  int add_num = rand_range(re_ptr->group_min, re_ptr->group_max);
+		  max_num += (add_num > 2 ? add_num : 2);
+		}
+
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
 		{
-			int nx, ny, z, d = 3;
+			int nx, ny, d = 3;
 
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
@@ -1711,42 +1665,13 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
-
-			/* Set the escort index */
-			place_monster_idx = r_idx;
-
-
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
-			/* Pick a random race */
-			z = get_mon_num(r_ptr->level);
-
-
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
-			/* Handle failure */
-			if (!z) break;
-
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
+			(void)place_monster_one(ny, nx, r_ptr->escort, slp);
 
-			/* Place a "group" of escorts if needed */
-			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
-			    (r_ptr->flags1 & (RF1_ESCORTS)))
-			{
-				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp);
-			}
+			num++;
+
+			/* Stop when enough have been created */
+			if (num == max_num) break;
 		}
 	}
 
@@ -1764,6 +1689,12 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 bool place_monster(int y, int x, bool slp, bool grp)
 {
 	int r_idx;
+
+	/* Require "okay" monsters */
+	get_mon_num_hook = get_mon_act;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 	/* Pick a monster */
 	r_idx = get_mon_num(monster_level);
@@ -1902,107 +1833,59 @@ static bool summon_specific_okay(int r_idx)
 	bool okay = FALSE;
 
 
+	if (!get_mon_act(r_idx)) return (FALSE);
+
+
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
+
+
+	/* No uniques */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-		case SUMMON_ANT:
-		{
-			okay = ((r_ptr->d_char == 'a') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_SPIDER:
-		{
-			okay = ((r_ptr->d_char == 'S') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HOUND:
-		{
-			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HYDRA:
-		{
-			okay = ((r_ptr->d_char == 'M') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_ANGEL:
-		{
-			okay = ((r_ptr->d_char == 'A') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
 		case SUMMON_DEMON:
 		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
+		     okay = (r_ptr->flags3 & (RF3_DEMON));
+		     break;
 		}
 
 		case SUMMON_UNDEAD:
 		{
-			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_DRAGON:
-		{
-			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
+		     okay = (r_ptr->flags3 & (RF3_UNDEAD));
+		     break;
 		}
 
 		case SUMMON_KIN:
 		{
-			okay = ((r_ptr->d_char == summon_kin_type) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
+		     okay = (r_idx == summon_kin_type);
+		     break;
 		}
 
 		case SUMMON_HI_UNDEAD:
 		{
-			okay = ((r_ptr->d_char == 'L') ||
-			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
-			break;
-		}
-
-		case SUMMON_HI_DRAGON:
-		{
-			okay = (r_ptr->d_char == 'D');
-			break;
+		     /* only skeletons and zombies are left out */
+		     okay = ((r_ptr->d_char == 'L') ||
+			     (r_ptr->d_char == 'M') ||
+			     (r_ptr->d_char == 'V') ||
+			     (r_ptr->d_char == 'W'));
+		     break;
 		}
 
 		case SUMMON_HI_DEMON:
 		{
-			okay = (r_ptr->d_char == 'U');
+		        /* megademons */
+			okay = (r_ptr->d_char == 'D');
 			break;
 		}
 
 		case SUMMON_WRAITH:
 		{
-			okay = ((r_ptr->d_char == 'W') &&
-			        (r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_UNIQUE:
-		{
-			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
-			break;
+		     okay = (r_ptr->d_char == 'W');
+		     break;
 		}
 	}
 
@@ -2107,10 +1990,15 @@ bool summon_specific(int y1, int x1, int lev, int type)
 bool multiply_monster(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	int target_escort;
 	int i, y, x;
-
 	bool result = FALSE;
+
+	if (r_ptr->escort != 0)
+	  target_escort = r_ptr->escort;
+	else target_escort = m_ptr->r_idx;
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
@@ -2124,7 +2012,7 @@ bool multiply_monster(int m_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
+		result = place_monster_aux(y, x, target_escort, FALSE, FALSE);
 
 		/* Done */
 		break;
@@ -2287,12 +2175,6 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_MANA:
 		{
 			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
-			break;
-		}
-
-		case DRS_RES_ACID:
-		{
-			if (p_ptr->res[RES_ACID] > 20) m_ptr->smart |= (SM_RES_ACID);
 			break;
 		}
 

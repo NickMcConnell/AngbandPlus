@@ -308,14 +308,14 @@ static const byte convert_ego_item[128] =
 {
 	0,					/* 0 */
 	EGO_RESISTANCE,		/* 1 = EGO_RESIST (XXX) */
-	EGO_RESIST_ACID,	/* 2 = EGO_RESIST_A (XXX) */
+	0,
 	EGO_RESIST_FIRE,	/* 3 = EGO_RESIST_F (XXX) */
 	EGO_RESIST_COLD,	/* 4 = EGO_RESIST_C (XXX) */
 	EGO_RESIST_ELEC,	/* 5 = EGO_RESIST_E (XXX) */
 	EGO_HA,				/* 6 = EGO_HA */
 	EGO_DF,				/* 7 = EGO_DF */
 	EGO_SLAY_ANIMAL,	/* 8 = EGO_SLAY_ANIMAL */
-	EGO_SLAY_DRAGON,	/* 9 = EGO_SLAY_DRAGON */
+	0,	/* 9 = EGO_SLAY_DRAGON */
 	EGO_SLAY_EVIL,		/* 10 = EGO_SLAY_EVIL (XXX) */
 	EGO_SLAY_UNDEAD,	/* 11 = EGO_SLAY_UNDEAD (XXX) */
 	EGO_BRAND_FIRE,		/* 12 = EGO_FT */
@@ -351,7 +351,7 @@ static const byte convert_ego_item[128] =
 	0,					/* 42 */
 	EGO_BRAND_FIRE,		/* 43 = EGO_FIRE (XXX) */
 	EGO_HURT_EVIL,		/* 44 = EGO_AMMO_EVIL */
-	EGO_HURT_DRAGON,	/* 45 = EGO_AMMO_DRAGON */
+	0,	/* 45 = EGO_AMMO_DRAGON */
 	0,					/* 46 */
 	0,					/* 47 */
 	0,					/* 48 */
@@ -373,14 +373,14 @@ static const byte convert_ego_item[128] =
 	EGO_VELOCITY,		/* 64 = EGO_VELOCITY */
 	EGO_ACCURACY,		/* 65 = EGO_ACCURACY */
 	0,					/* 66 */
-	EGO_SLAY_ORC,		/* 67 = EGO_SLAY_ORC */
+	0,		/* 67 = EGO_SLAY_ORC */
 	EGO_POWER,			/* 68 = EGO_POWER */
 	0,					/* 69 */
 	0,					/* 70 */
 	EGO_WEST,			/* 71 = EGO_WEST */
 	EGO_BLESS_BLADE,	/* 72 = EGO_BLESS_BLADE */
 	EGO_SLAY_DEMON,		/* 73 = EGO_SLAY_DEMON */
-	EGO_SLAY_TROLL,		/* 74 = EGO_SLAY_TROLL */
+	0,		/* 74 = EGO_SLAY_TROLL */
 	0,					/* 75 */
 	0,					/* 76 */
 	EGO_WOUNDING,		/* 77 = EGO_AMMO_WOUNDING */
@@ -391,7 +391,7 @@ static const byte convert_ego_item[128] =
 	EGO_AGILITY,		/* 82 = EGO_AGILITY */
 	0,					/* 83 */
 	0,					/* 84 */
-	EGO_SLAY_GIANT,		/* 85 = EGO_SLAY_GIANT */
+	0,		/* 85 = EGO_SLAY_GIANT */
 	EGO_TELEPATHY,		/* 86 = EGO_TELEPATHY */
 	EGO_ELVENKIND,		/* 87 = EGO_ELVENKIND (XXX) */
 	0,					/* 88 */
@@ -516,6 +516,8 @@ static errr rd_item(object_type *o_ptr)
 	/* New method */
 	else
 	{
+                int i;
+
 		rd_byte(&o_ptr->number);
 		rd_s16b(&o_ptr->weight);
 
@@ -532,6 +534,9 @@ static errr rd_item(object_type *o_ptr)
 
 		rd_byte(&old_dd);
 		rd_byte(&old_ds);
+
+		for (i = 0; i < RES_MAX; i++)
+		  rd_byte(&o_ptr->res[i]);
 
 		rd_byte(&o_ptr->ident);
 
@@ -660,10 +665,6 @@ static errr rd_item(object_type *o_ptr)
 			{
 				o_ptr->name2 = EGO_HURT_EVIL;
 			}
-			else if (o_ptr->name2 == EGO_SLAY_DRAGON)
-			{
-				o_ptr->name2 = EGO_HURT_DRAGON;
-			}
 		}
 
 		/* Hack -- fix some "Bows" */
@@ -704,11 +705,7 @@ static errr rd_item(object_type *o_ptr)
 		if (o_ptr->tval == TV_SHIELD)
 		{
 			/* Special ego-item indexes */
-			if (o_ptr->name2 == EGO_RESIST_ACID)
-			{
-				o_ptr->name2 = EGO_ENDURE_ACID;
-			}
-			else if (o_ptr->name2 == EGO_RESIST_ELEC)
+			if (o_ptr->name2 == EGO_RESIST_ELEC)
 			{
 				o_ptr->name2 = EGO_ENDURE_ELEC;
 			}
@@ -1335,7 +1332,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	strip_bytes(1);
-	rd_byte(&p_ptr->expfact);
+	strip_bytes(1); p_ptr->expfact = 200;
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);

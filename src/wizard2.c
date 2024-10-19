@@ -348,10 +348,10 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("lf  eefo     egrgggg  bcnaih  vr", 12, j+32);
 	prt("we  lerl    ilgannnn  ltssdo  ym", 13, j+32);
 	prt("da reied    merirrrr  eityew ccc", 14, j+32);
-	prt("itlepnel    ppanaefc  svaktm uuu", 15, j+32);
-	prt("ghigavai    aoveclio  saanyo rrr", 16, j+32);
-	prt("seteticf    craxierl  etropd sss", 17, j+32);
-	prt("trenhste    tttpdced  detwes eee", 18, j+32);
+	prt("itlepnel    ppanxefc  svaktm uuu", 15, j+32);
+	prt("ghigavai    aovexlio  saanyo rrr", 16, j+32);
+	prt("seteticf    craxxerl  etropd sss", 17, j+32);
+	prt("trenhste    tttpxced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 

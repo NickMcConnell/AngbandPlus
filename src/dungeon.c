@@ -740,12 +740,6 @@ static void process_world(void)
 		(void)set_shield(p_ptr->shield - 1);
 	}
 
-	/* Oppose Acid */
-	if (p_ptr->tim_res[RES_ACID])
-	{
-		(void)set_oppose_acid(p_ptr->tim_res[RES_ACID] - 1);
-	}
-
 	/* Oppose Lightning */
 	if (p_ptr->tim_res[RES_ELEC])
 	{

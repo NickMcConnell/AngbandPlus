@@ -65,20 +65,12 @@ V:2.9.2
 
 ### Body Armor ###
 
-N:4:of Resist Acid
-X:31:16:0
-W:0:1:0:1000
-T:36:0:99
-T:37:0:99
-O:25:0:0:0:0
-F:IGNORE_ACID
-
 N:5:of Resist Lightning
 X:31:10:0
 W:0:1:0:400
 T:36:0:99
 T:37:0:99
-O:0:25:0:0:0
+O:15:0:0:0
 F:IGNORE_ELEC
 
 N:6:of Resist Fire
@@ -86,7 +78,7 @@ X:31:14:0
 W:0:1:0:800
 T:36:0:99
 T:37:0:99
-O:0:0:25:0:0
+O:0:15:0:0
 F:IGNORE_FIRE
 
 N:7:of Resist Cold
@@ -94,7 +86,7 @@ X:31:12:0
 W:0:1:0:600
 T:36:0:99
 T:37:0:99
-O:0:0:0:25:0
+O:0:0:15:0
 F:IGNORE_COLD
 
 N:8:of Resistance
@@ -103,8 +95,8 @@ W:0:2:0:12500
 C:0:0:10:0
 T:36:0:99
 T:37:0:99
-O:20:20:20:20:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+O:10:10:10:10
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
@@ -114,9 +106,9 @@ W:0:4:0:15000
 C:0:0:10:3
 T:36:0:99
 T:37:0:99
-O:20:20:20:20:0
+O:6:6:6:6
 F:STEALTH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Paladin skill shields
 N:10:(skill name)
@@ -133,10 +125,10 @@ X:31:30:2
 W:0:2:0:30000
 C:0:0:10:0
 T:36:2:2
-O:20:20:20:20:0
+O:6:6:6:6
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
 F:HOLD_LIFE | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 # Rings and Amulets
@@ -153,39 +145,32 @@ X:28:6:0
 W:0:6:0:500
 T:40:0:19
 T:45:0:33
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ### Shields ###
 
 # Note that the most common shields (lightning, cold) have a ratity of 2.
 # That is to keep close to original Angband rarities.
 
-N:16:of Resist Acid
-X:25:16:0
-W:0:6:0:1000
-T:34:0:99
-O:25:0:0:0:0
-F:IGNORE_ACID
-
 N:17:of Resist Lightning
 X:25:10:0
 W:0:2:0:400
 T:34:0:99
-O:0:25:0:0:0
+O:15:0:0:0
 F:IGNORE_ELEC
 
 N:18:of Resist Fire
 X:25:14:0
 W:0:3:0:800
 T:34:0:99
-O:0:0:25:0:0
+O:0:15:0:0
 F:IGNORE_FIRE
 
 N:19:of Resist Cold
 X:25:12:0
 W:0:2:0:600
 T:34:0:99
-O:0:0:0:25:0
+O:0:0:15:0
 F:IGNORE_COLD
 
 N:20:of Resistance
@@ -193,8 +178,8 @@ X:25:20:0
 W:0:6:0:12500
 C:0:0:10:0
 T:34:0:99
-O:20:20:20:20:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+O:10:10:10:10
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 # Barbarian skill helms
@@ -248,9 +233,9 @@ X:33:15:3
 W:0:4:0:7500
 C:0:0:0:3
 T:33:0:99
-O:20:20:20:20:0
+O:6:6:6:6
 F:INT | SUST_INT | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:28:of Might
 X:33:19:0
@@ -346,7 +331,7 @@ X:32:10:0
 W:0:1:0:500
 C:0:0:10:0
 T:35:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:41:of Stealth
 X:32:10:0
@@ -363,7 +348,7 @@ W:0:7:0:4000
 C:0:0:20:3
 T:35:0:99
 F:STEALTH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 # Necromancer skill shields
@@ -554,10 +539,10 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 T:24:0:99
-O:20:20:20:20:0
+O:6:6:6:6
 F:STEALTH | 
 F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OneAbility
 
@@ -620,16 +605,6 @@ T:22:31:99
 
 # The "Elemental" brands (4)
 
-N:72:of Melting
-X:24:15:0
-W:0:10:0:8000
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-O:25:0:0:0:0
-F:BRAND_ACID | IGNORE_ACID
-
 N:73:of Shocking
 X:24:20:0
 W:0:10:0:4500
@@ -637,7 +612,7 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 T:24:0:99
-O:0:25:0:0:0
+O:15:0:0:0
 F:BRAND_ELEC | IGNORE_ELEC
 
 N:74:of Burning
@@ -647,7 +622,7 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 T:24:0:99
-O:0:0:25:0:0
+O:0:15:0:0
 F:BRAND_FIRE | IGNORE_FIRE
 
 N:75:of Freezing
@@ -657,7 +632,7 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 T:24:0:99
-O:0:0:0:25:0
+O:0:0:15:0
 F:BRAND_COLD | IGNORE_COLD
 
 # Brands for Claws
@@ -666,14 +641,14 @@ N:76:of Fire
 X:24:20:0
 W:0:10:0:3000
 T:25:0:99
-O:0:0:25:0:0
+O:0:15:0:0
 F:BRAND_FIRE | IGNORE_FIRE
 
 N:77:of Frost
 X:24:15:0
 W:0:10:0:2500
 T:25:0:99
-O:0:0:0:25:0
+O:0:0:15:0
 F:BRAND_COLD | IGNORE_COLD
 
 # Necromancer skill whips and scythes
@@ -736,42 +711,6 @@ T:23:0:99
 T:24:0:99
 F:SLAY_DEMON
 
-N:84:of Slay Orc
-X:24:10:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:SLAY_ORC
-
-N:85:of Slay Troll
-X:24:10:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:SLAY_TROLL
-
-N:86:of Slay Giant
-X:24:14:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:SLAY_GIANT
-
-N:87:of Slay Dragon
-X:24:18:0
-W:0:6:0:3500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:SLAY_DRAGON
-
 # The "Kill" brands (8)
 
 N:88:of *Slay* Animal
@@ -814,45 +753,6 @@ T:23:0:99
 T:24:0:99
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
-X:24:14:0
-W:0:25:0:4000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:DEX | SLAY_ORC
-
-N:93:of *Slay* Troll
-X:24:14:0
-W:0:25:0:4000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:STR | SLAY_TROLL
-
-N:94:of *Slay* Giant
-X:24:16:0
-W:0:25:0:4000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:STR | SLAY_GIANT
-
-N:95:of *Slay* Dragon
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-T:24:0:99
-F:CON | SLAY_DRAGON | KILL_DRAGON
 
 
 # Sorceress multiple skill crowns and staffs
@@ -897,8 +797,8 @@ X:24:4:0
 W:0:1:0:500
 C:0:0:0:5
 T:20:0:99
-F:TUNNEL | BRAND_ACID | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:TUNNEL | 
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 # Amazon multiple skill polearms, not scythes
@@ -1016,37 +916,6 @@ T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
 
-N:116:of Hurt Orc
-X:36:10:0
-W:0:50:0:15
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:SLAY_ORC
-
-N:117:of Hurt Troll
-X:36:10:0
-W:0:50:0:15
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:SLAY_TROLL
-
-N:118:of Hurt Giant
-X:36:10:0
-W:0:50:0:15
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:SLAY_GIANT
-
-N:119:of Hurt Dragon
-X:36:10:0
-W:0:50:0:35
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:SLAY_DRAGON
 
 
 # Necromancer multiple skill masks, shields, whips and scythes

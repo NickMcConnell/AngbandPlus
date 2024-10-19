@@ -3942,23 +3942,24 @@ void disturb(int stop_search, int unused_flag)
 
 /*
  * Hack -- Check if a level is a "quest" level
+ * returns number of the quest + 1, or 0 if none
  */
-bool is_quest(int level)
+int is_quest(int level)
 {
 	int i;
 
 	/* Town is never a quest */
-	if (!level) return (FALSE);
+	if (!level) return (0);
 
 	/* Check quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		/* Check for quest */
-		if (q_list[i].level == level) return (TRUE);
+		if (q_list[i].level == level) return (i+1);
 	}
 
 	/* Nope */
-	return (FALSE);
+	return (0);
 }
 
 

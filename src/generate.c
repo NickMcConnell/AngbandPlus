@@ -103,18 +103,18 @@
 /*
  * Dungeon generation values
  */
-#define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	30	/* 1/chance of having a destroyed level */
+#define DUN_ROOMS	 50	/* [50] Number of rooms to attempt */
+#define DUN_UNUSUAL	200	/* [200] Level/chance of unusual room */
+#define DUN_DEST	 30	/* [30] 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND	10	/* Chance of random direction */
-#define DUN_TUN_CHG	30	/* Chance of changing direction */
-#define DUN_TUN_CON	15	/* Chance of extra tunneling */
-#define DUN_TUN_PEN	25	/* Chance of doors at room entrances */
-#define DUN_TUN_JCT	90	/* Chance of doors at tunnel junctions */
+#define DUN_TUN_RND     10	/* [10] Chance of random direction */
+#define DUN_TUN_CHG     30	/* [30] Chance of changing direction */
+#define DUN_TUN_CON     15	/* [15] Chance of extra tunneling */
+#define DUN_TUN_PEN	25	/* [25] Chance of doors at room entrances */
+#define DUN_TUN_JCT	90	/* [90] Chance of doors at tunnel junctions */
 
 /*
  * Dungeon streamer generation values
@@ -1466,12 +1466,53 @@ static void build_type4(int y0, int x0)
  */
 
 
+/* Get an act to create a themed dungeon with */
+int get_act()
+{
+    /* by difficulty, then act, then min and max level */
+    int act_breakpoint[3][5][2] = {
+      { { 1,12}, {13,24}, {25,36}, {37,44}, {45,56} },
+      { {57,61}, {62,66}, {67,71}, {72,75}, {76,81} },
+      { {82,85}, {86,89}, {90,93}, {94,96}, {97,100} } };
+    int i;
+
+    /* Cow level hack */
+    monster_race *r_ptr = &r_info[546];
+    if (p_ptr->depth >= r_ptr->level) return 0;
+
+    /* Scan the list for each difficulty level (relies on no overlaps) */
+    for (i = 0; i < 5; i++)
+    {
+        if ((p_ptr->depth >= act_breakpoint[0][i][0] && p_ptr->depth <= act_breakpoint[0][i][1]) ||
+	    (p_ptr->depth >= act_breakpoint[1][i][0] && p_ptr->depth <= act_breakpoint[1][i][1]) ||
+	    (p_ptr->depth >= act_breakpoint[2][i][0] && p_ptr->depth <= act_breakpoint[2][i][1]))
+        {
+	  return (i + 1);
+	}
+    }
+
+    /* Use Act 0 if out of range */
+    return 0;
+}
+
+/* Force monsters to fit theme of current act */
+bool get_mon_act(int r_idx)
+{
+  monster_race *r_ptr = &r_info[r_idx];
+
+  if (r_ptr->act != get_act()) return (FALSE);
+
+  return (TRUE);
+}
+
 /*
  * Helper function for "monster nest (jelly)"
  */
 static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+	
+	if (!get_mon_act(r_idx)) return (FALSE);
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1491,6 +1532,8 @@ static bool vault_aux_animal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	if (!get_mon_act(r_idx)) return (FALSE);
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1508,6 +1551,8 @@ static bool vault_aux_animal(int r_idx)
 static bool vault_aux_undead(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!get_mon_act(r_idx)) return (FALSE);
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1527,6 +1572,8 @@ static bool vault_aux_orc(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	if (!get_mon_act(r_idx)) return (FALSE);
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1545,6 +1592,8 @@ static bool vault_aux_troll(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	if (!get_mon_act(r_idx)) return (FALSE);
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1562,6 +1611,8 @@ static bool vault_aux_troll(int r_idx)
 static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!get_mon_act(r_idx)) return (FALSE);
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1587,6 +1638,8 @@ static bool vault_aux_dragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	if (!get_mon_act(r_idx)) return (FALSE);
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1607,6 +1660,8 @@ static bool vault_aux_dragon(int r_idx)
 static bool vault_aux_demon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!get_mon_act(r_idx)) return (FALSE);
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1905,23 +1960,10 @@ static void build_type6(int y0, int x0)
 	else if (tmp < 80)
 	{
 		/* Pick dragon type */
-		switch (rand_int(6))
+		switch (rand_int(5))
 		{
-			/* Black */
-			case 0:
-			{
-				/* Message */
-				name = "acid dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ACID;
-
-				/* Done */
-				break;
-			}
-
 			/* Blue */
-			case 1:
+			case 0:
 			{
 				/* Message */
 				name = "electric dragon";
@@ -1934,7 +1976,7 @@ static void build_type6(int y0, int x0)
 			}
 
 			/* Red */
-			case 2:
+			case 1:
 			{
 				/* Message */
 				name = "fire dragon";
@@ -1947,7 +1989,7 @@ static void build_type6(int y0, int x0)
 			}
 
 			/* White */
-			case 3:
+			case 2:
 			{
 				/* Message */
 				name = "cold dragon";
@@ -1960,7 +2002,7 @@ static void build_type6(int y0, int x0)
 			}
 
 			/* Green */
-			case 4:
+			case 3:
 			{
 				/* Message */
 				name = "poison dragon";
@@ -1979,7 +2021,7 @@ static void build_type6(int y0, int x0)
 				name = "multi-hued dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
+				vault_aux_dragon_mask4 = (RF4_BR_ELEC |
 				                          RF4_BR_FIRE | RF4_BR_COLD |
 				                          RF4_BR_POIS);
 
@@ -2829,7 +2871,7 @@ static void cave_gen(void)
 	s16b mon_gen = MIN_M_ALLOC_LEVEL;
 
 	dun_data dun_body;
-
+	
 
 	/* Global data */
 	dun = &dun_body;
@@ -2910,26 +2952,25 @@ static void cave_gen(void)
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
+			/*
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
-				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && room_build(by, bx, 8)) continue;
-
-				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 25) && room_build(by, bx, 7)) continue;
-
-				/* Type 6 -- Monster pit (15%) */
 				if ((k < 40) && room_build(by, bx, 6)) continue;
-
-				/* Type 5 -- Monster nest (10%) */
 				if ((k < 50) && room_build(by, bx, 5)) continue;
 			}
+			*/
 
 			/* Type 4 -- Large room (25%) */
+			/*
 			if ((k < 25) && room_build(by, bx, 4)) continue;
+			*/
 
 			/* Type 3 -- Cross room (25%) */
+			/*
 			if ((k < 50) && room_build(by, bx, 3)) continue;
+			*/
 
 			/* Type 2 -- Overlapping (50%) */
 			if ((k < 100) && room_build(by, bx, 2)) continue;
@@ -3239,7 +3280,6 @@ static void town_gen_hack(void)
 	int y, x, k, n;
 
 	int rooms[MAX_STORES];
-
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
