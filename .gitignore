@@ -1,0 +1,21 @@
+# Build artifacts
+*.o
+*.a
+
+# Built binaries
+/angband
+/src/angband
+
+# Lua build output
+/src/lua/bin/
+/src/lua/lib/
+
+# Generated game data
+/lib/data/*.raw
+/lib/apex/scores.raw
+
+# User data (savefiles, bones)
+/lib/save/*
+!/lib/save/remove.me
+/lib/bone/*
+!/lib/bone/remove.me

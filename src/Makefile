@@ -117,8 +117,8 @@ CC = gcc
 # attempt to "guess" at many of these flags based on your system.
 #
 
-CFLAGS = -Wall -g -D"USE_X11"
-LIBS = -L/usr/X11R6/lib -lX11
+CFLAGS = -Wall -g -D"USE_GCU" -DNCURSES_INTERNALS
+LIBS = -lncurses
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")
